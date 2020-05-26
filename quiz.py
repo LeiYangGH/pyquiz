@@ -1,5 +1,7 @@
 import pickle
 import os
+import re
+import random
 
 filename = 'all_quizes.dat'
 
@@ -33,6 +35,7 @@ class Quiz(object):
 
 
 all_quizes = []
+rand_quizes = []
 
 
 def interactive_add_quiz():
@@ -75,21 +78,48 @@ def load_all_quizes():
             print(all_quizes)
 
 
+def randomly_choose_quizes():
+    global all_quizes
+    length = len(all_quizes)
+    input_str = input(f"请输入要抽取的题目数1<=N<={length}")
+    while not re.match(r'^\d+$', input_str):
+        print('输入的不是整数，请重新输入')
+        input_str = input(f"请输入要抽取的题目数1<=N<={length}")
+    n = int(input_str)
+    N = n
+    # 如果输入的n不在合理范围，就取极值
+    # 也可以用while循环要求不断修改输入，但稍麻烦一点
+    if n < 1:
+        N = 1
+    elif n > length:
+        N = length
+    global rand_quizes
+    print(f'从{length}题目中抽取了{N}道题目')
+    rand_quizes = random.choices(all_quizes, k=N)
+    print(rand_quizes)
+
+
 def add_sample_quizes():
     global all_quizes
 
     q1 = Quiz()
     q1.set_title('苹果是什么')
     q1.set_choices(['公司', '手机', '电脑', '水果'])
-    q1.set_answer(3)
+    q1.set_answer(4)
 
     q2 = Quiz()
     q2.set_title('你的学校是')
     q2.set_choices(['清华', '北大', '北理', '上交'])
-    q2.set_answer(2)
+    q2.set_answer(3)
+
+    q3 = Quiz()
+    q3.set_title('今天多少号')
+    q3.set_choices(['24', '25', '26', '27'])
+    q3.set_answer(3)
 
     all_quizes.append(q1)
     all_quizes.append(q2)
+    all_quizes.append(q3)
     # print(all_quizes)#测试显示所有试题
 
 
@@ -110,6 +140,8 @@ q - 退出\r\n请输入:\n''')
             save_all_quizes()
         elif user_input.lower() == 'b':
             interactive_add_quiz()
+        elif user_input.lower() == 'c':
+            randomly_choose_quizes()
         else:
             print('非法输入，请重试！')
 
@@ -127,4 +159,3 @@ def test():
 if __name__ == "__main__":
     load_all_quizes()
     interactive_input_menu()
-
