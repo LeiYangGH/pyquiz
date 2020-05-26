@@ -2,12 +2,14 @@ import pickle
 import os
 import re
 import random
+import uuid
 
 filename = 'all_quizes.dat'
 
 
 class Quiz(object):
     def __init__(self, title='', choices=[], answer_id=0):
+        self.uuid = str(uuid.uuid1())  # 唯一标识题目
         self.title = title
         self.choices = choices
         self.answer_id = answer_id
@@ -36,6 +38,7 @@ class Quiz(object):
 
 all_quizes = []
 rand_quizes = []
+user_answers = {}  # uuid->answerid
 
 
 def interactive_add_quiz():
@@ -99,6 +102,22 @@ def randomly_choose_quizes():
     print(rand_quizes)
 
 
+def answer_quizes():
+    global rand_quizes
+    global user_answers
+    length = len(rand_quizes)
+    if length <= 0:
+        print('必须先抽题再答题')
+        return
+    for i in range(length):
+        print(f'共{length}题，第{i + 1}题')
+        q = rand_quizes[i]
+        print(q)
+        user_input = input('你的答案是(1234中任意一个数字):')
+        user_answers[q.uuid] = user_input
+    print('答题结束！')
+
+
 def add_sample_quizes():
     global all_quizes
 
@@ -142,6 +161,8 @@ q - 退出\r\n请输入:\n''')
             interactive_add_quiz()
         elif user_input.lower() == 'c':
             randomly_choose_quizes()
+        elif user_input.lower() == 'd':
+            answer_quizes()
         else:
             print('非法输入，请重试！')
 
@@ -158,4 +179,5 @@ def test():
 
 if __name__ == "__main__":
     load_all_quizes()
+    add_sample_quizes()
     interactive_input_menu()
