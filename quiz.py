@@ -28,7 +28,7 @@ class Quiz(object):
         s += self.title + '?\n'
         s += '-' * 60 + '?\n'
         for i in range(4):
-            s += f'{i} ' + self.choices[i] + '\n'
+            s += f'{i + 1} ' + self.choices[i] + '\n'
         s += '\n'
         return s
 
@@ -98,7 +98,7 @@ def randomly_choose_quizes():
         N = length
     global rand_quizes
     print(f'从{length}题目中抽取了{N}道题目')
-    rand_quizes = random.choices(all_quizes, k=N)
+    rand_quizes = random.sample(all_quizes, k=N)
     print(rand_quizes)
 
 
@@ -114,8 +114,29 @@ def answer_quizes():
         q = rand_quizes[i]
         print(q)
         user_input = input('你的答案是(1234中任意一个数字):')
-        user_answers[q.uuid] = user_input
+        user_answers[q.uuid] = user_input.strip()
     print('答题结束！')
+
+
+def judge_answers():
+    global all_quizes
+    global user_answers
+    length = len(user_answers)
+    if length <= 0:
+        print('必须先答题再评卷')
+        return
+    print('开始评卷!')
+    right = 0
+
+    for (uuid, answer) in user_answers.items():
+        q = next(qz for qz in all_quizes if qz.uuid == uuid)
+        print(q)
+        if str(q.answer_id) == answer:
+            print('恭喜答对')
+            right += 1
+        else:
+            print(f'遗憾答错,正确答案是{q.answer_id}，你的答案是{answer}')
+    print(f'共{length}题，答对{right}题，共{100 * right / length}分')
 
 
 def add_sample_quizes():
@@ -163,6 +184,8 @@ q - 退出\r\n请输入:\n''')
             randomly_choose_quizes()
         elif user_input.lower() == 'd':
             answer_quizes()
+        elif user_input.lower() == 'e':
+            judge_answers()
         else:
             print('非法输入，请重试！')
 
