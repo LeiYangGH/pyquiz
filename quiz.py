@@ -1,13 +1,14 @@
 import pickle
+import os
 
 filename = 'all_quizes.dat'
 
 
-class quiz(object):
-    def __init__(self):
-        self.title = ''
-        self.choices = []
-        self.answer_index = 0
+class Quiz(object):
+    def __init__(self, title='', choices=[], answer_id=0):
+        self.title = title
+        self.choices = choices
+        self.answer_id = answer_id
 
     def set_title(self, s):
         self.title = s
@@ -16,7 +17,7 @@ class quiz(object):
         self.choices = lst
 
     def set_answer(self, i):
-        self.answer_index = i
+        self.answer_id = i
 
     def __str__(self):
         s = '=' * 60 + '?\n'
@@ -34,8 +35,27 @@ class quiz(object):
 all_quizes = []
 
 
-def add_quiz():
-    pass
+def interactive_add_quiz():
+    '''交互式录入
+    注意此处每个input都应该加输入验证
+    '''
+    title = input('输入题目标题:\n')
+    # 示例输入验证1
+    # if len(title) < 5:
+    #     print('标题至少5个字符！')
+    #     return
+
+    # 示例输入验证2
+    # while len(title) < 5:
+    #     print('标题至少5个字符！')
+    #     title = input('输入题目标题:\n')
+    lst = []
+    for i in range(4):
+        lst.append(input(f'输入第{i + 1}个选项的内容:\n'))
+    answer_id = int(input(f'输入正确答案的序号(1234中的一个):\n'))
+    global all_quizes
+    all_quizes.append(Quiz(title, lst, answer_id))
+    print(f'成功录入题目，现在总数{len(all_quizes)}')
 
 
 def save_all_quizes():
@@ -46,32 +66,65 @@ def save_all_quizes():
 
 
 def load_all_quizes():
-    with open(filename, 'rb') as f:
-        global all_quizes
-        all_quizes = pickle.load(f)
-        print(f'已将从{filename}读取{len(all_quizes)}道试题.')
+    '''如果文件存在则读入所有已经保存的题'''
+    if os.path.isfile(filename):
+        with open(filename, 'rb') as f:
+            global all_quizes
+            all_quizes = pickle.load(f)
+            print(f'已将从{filename}读取{len(all_quizes)}道试题.')
+            print(all_quizes)
 
 
 def add_sample_quizes():
     global all_quizes
 
-    q1 = quiz()
+    q1 = Quiz()
     q1.set_title('苹果是什么')
     q1.set_choices(['公司', '手机', '电脑', '水果'])
     q1.set_answer(3)
 
-    q2 = quiz()
+    q2 = Quiz()
     q2.set_title('你的学校是')
     q2.set_choices(['清华', '北大', '北理', '上交'])
     q2.set_answer(2)
 
     all_quizes.append(q1)
     all_quizes.append(q2)
-    print(all_quizes)
+    # print(all_quizes)#测试显示所有试题
 
 
-if __name__ == "__main__":
+def interactive_input_menu():
+    global property_list
+    # add_sample_quizes()  # 添加示例数据，也可以注释掉
+    user_input = ''
+    while user_input.lower() != 'q':
+        user_input = input('''*** 单项选择题标准化考试系统 ***
+a - 保存试题
+b - 录入试题
+c - 试题抽取
+d - 答题
+e - 自动判卷
+q - 退出\r\n请输入:\n''')
+        # print(user_input)
+        if user_input.lower() == 'a':
+            save_all_quizes()
+        elif user_input.lower() == 'b':
+            interactive_add_quiz()
+        else:
+            print('非法输入，请重试！')
+
+
+def test():
+    '''自动化测试，
+    避免交互输入，
+    更快测试程序
+    '''
     add_sample_quizes()
     save_all_quizes()
     load_all_quizes()
-    print('end of main.')
+
+
+if __name__ == "__main__":
+    load_all_quizes()
+    interactive_input_menu()
+
